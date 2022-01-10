@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import './App.css';
 import {Button, Card, Col, Container, Form, FormFeedback, FormGroup, Input, Label, Row} from "reactstrap";
 import {Controller, useFieldArray, useForm} from "react-hook-form";
 import * as yup from "yup";
