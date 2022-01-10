@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import {Button, Card, Col, Container, Form, FormFeedback, FormGroup, Input, Label, Row} from "reactstrap";
 import {Controller, useFieldArray, useForm} from "react-hook-form";
-import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
+import {formValidationRules} from "./tools/validations/formex-validation";
 
 interface FormControls {
     objectType: string;
@@ -15,28 +15,6 @@ interface FormControls {
         thresholdDays: string;
     }[]
 }
-
-const formValidationRules = yup.object().shape({
-    objectType: yup.string().required("Field required").min(5, "No less than 5"),
-    sludge: yup.string().required("Field required"),
-    triggers: yup.lazy(() => {
-        return yup.array().of(yup.object({
-            thresholdName: yup.string().required("Field required"),
-            thresholdMinValue: yup.number().typeError("Must be a number").required("Field required")
-                .test("min-valid", "Must be greater than 1 and than the previous maxValue", (value, context) => {
-                    // @ts-ignore
-                    const {index, from} = context.options
-                    return index > 0 ? value!! > from[1].value.triggers[index - 1].thresholdMaxValue : value!! >= 1
-                }),
-            thresholdMaxValue: yup.number().typeError("Must be a number").required("Field required")
-                .test("max-valid", "Must be greater than the previous minValue", (value, context) => {
-                    // @ts-ignore
-                    const {parent} = context.options
-                    return value!! > parent.thresholdMinValue
-                })
-        }))
-    })
-})
 
 function App() {
     const [payload, setPayload] = useState<FormControls>()
