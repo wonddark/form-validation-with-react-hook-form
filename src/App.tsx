@@ -3,18 +3,7 @@ import {Button, Card, Col, Container, Form, FormFeedback, FormGroup, Input, Labe
 import {Controller, useFieldArray, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import {formValidationRules} from "./tools/validations/formex-validation";
-
-interface FormControls {
-    objectType: string;
-    sludge: string;
-    triggers: {
-        thresholdName: string;
-        thresholdColor: string;
-        thresholdMinValue: number;
-        thresholdMaxValue: number;
-        thresholdDays: string;
-    }[]
-}
+import FormControls from "./tools/interfaces/formex-inputs";
 
 function App() {
     const [payload, setPayload] = useState<FormControls>()
