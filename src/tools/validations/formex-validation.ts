@@ -5,7 +5,7 @@ export const formValidationRules = yup.object().shape({
     sludge: yup.string().required("Field required"),
     triggers: yup.lazy(() => {
         return yup.array().of(yup.object({
-            thresholdName: yup.string().required("Field required"),
+            thresholdName: yup.string().required("Field required").min(5, "No less than 5"),
             thresholdMinValue: yup.number().typeError("Must be a number").required("Field required")
                 .test("min-valid", "Must be greater than 1 and than the previous maxValue", (value, context) => {
                     // @ts-ignore
