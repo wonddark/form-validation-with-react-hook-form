@@ -1,22 +1,20 @@
 import * as yup from "yup";
 
 export const formValidationRules = yup.object().shape({
-    objectType: yup.string().required("Field required").min(5, "No less than 5"),
-    sludge: yup.string().required("Field required"),
-    triggers: yup.lazy(() => {
+    name: yup.string().required("Field required").min(5, "No less than 5"),
+    expertise: yup.string().required("Field required"),
+    experiences: yup.lazy(() => {
         return yup.array().of(yup.object({
-            thresholdName: yup.string().required("Field required").min(5, "No less than 5"),
-            thresholdMinValue: yup.number().typeError("Must be a number").required("Field required")
-                .test("min-valid", "Must be greater than 1 and than the previous maxValue", (value, context) => {
-                    // @ts-ignore
-                    const {index, from} = context.options
-                    return index > 0 ? value!! > from[1].value.triggers[index - 1].thresholdMaxValue : value!! >= 1
+            title: yup.string().required("Field required"),
+            from: yup.date().typeError("Must be a valid date").required("Field required")
+                .test("min-valid", "Must be later than previous end date", (value, context) => {
+                    const {index, from} = context.options as { index: number, from: Record<string, any> }
+                    return (value && (index > 0 ? value > new Date(from[1].value.experiences[index - 1].to) : true)) || false
                 }),
-            thresholdMaxValue: yup.number().typeError("Must be a number").required("Field required")
+            to: yup.date().typeError("Must be a valid date").required("Field required")
                 .test("max-valid", "Must be greater than the previous minValue", (value, context) => {
-                    // @ts-ignore
-                    const {parent} = context.options
-                    return value!! > parent.thresholdMinValue
+                    const {parent} = context.options as { parent: Record<string, any> }
+                    return (value && value > parent.from && value <= new Date()) || false
                 })
         }))
     })
