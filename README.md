@@ -1,3 +1,5 @@
-# An exercise to show the power and capabilities of react-hook-form package
+# Form Validation with react-hook-form
 
-It showcases form validation and adding/removing fields
+A simple form with few inputs, some of they dynamic.
+
+Validating <strong>required fields</strong>, <strong>value types</strong> and <strong>dynamic ranges</strong>
