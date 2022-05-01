@@ -1,22 +1,26 @@
 import React, {useState} from 'react';
-import {Button, Card, Col, Container, Form, FormFeedback, FormGroup, Input, Label, Row} from "reactstrap";
-import {Controller, useFieldArray, useForm} from "react-hook-form";
+import {Button, Card, Col, Container, Form, FormGroup, Row} from "reactstrap";
+import {useFieldArray, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import {formValidationRules} from "./tools/validations/formex-validation";
 import FormControls from "./tools/interfaces/formex-inputs";
+import CustomInput from "./ui/CustomInput";
+import CustomSelect from "./ui/CustomSelect";
+import expertises from "./tools/constants/expertises";
 
 function App() {
     const [payload, setPayload] = useState<FormControls>()
     const methods = useForm<FormControls>({
         defaultValues: {
-            objectType: "",
-            sludge: "",
-            triggers: []
+            name: "",
+            expertise: "",
+            experiences: []
         },
-        resolver: yupResolver(formValidationRules)
+        resolver: yupResolver(formValidationRules),
+        mode: "onChange"
     })
-    const {control, formState: {errors}, handleSubmit, trigger} = methods
-    const {append, remove, fields} = useFieldArray({control, name: "triggers", keyName: "_id"})
+    const {control, formState: {isValid}, handleSubmit, trigger, reset} = methods
+    const {append, remove, fields} = useFieldArray({control, name: "experiences", keyName: "_id"})
     const save = (data: FormControls) => {
         setPayload(data)
     }
@@ -25,161 +29,93 @@ function App() {
             <Container>
                 <Row className="justify-content-center">
                     <Col lg={9}>
-                        <Card body className="border-primary mt-4">
+                        <Card body className="border-primary mt-4 shadow">
                             <Form onSubmit={handleSubmit(save)}>
-                                <FormGroup>
-                                    <Label for="object-type" className="w-100 text-start">Object type*</Label>
-                                    <Controller
-                                        render={({field}) => <Input {...field} id="object-type"/>}
-                                        name="objectType"
-                                        control={control}/>
-                                    <FormFeedback valid={!errors.objectType}
-                                                  className={`${errors.objectType ? "d-block" : "d-none"} w-100 text-start`}>
-                                        {errors.objectType?.message}</FormFeedback>
-                                </FormGroup>
-                                <FormGroup>
-                                    <Label for="operation-types" className="w-100 text-start">Operation types*</Label>
-                                    <Controller
-                                        render={({field}) => {
-                                            return <Input type="select" {...field} id="operation-types"
-                                                          onChange={
-                                                              ({target: {value}}) => {
-                                                                  field.onChange(value)
-                                                              }
-                                                          }>
-                                                <option value="">Choose one option</option>
-                                                <option value="option-1">Option 1</option>
-                                                <option value="option-2">Option 2</option>
-                                            </Input>
-                                        }}
-                                        name="sludge"
-                                        control={control}/>
-                                    <FormFeedback className={`${errors.sludge ? "d-block" : "d-none"} w-100 text-start`}
-                                                  valid={!errors.sludge}>{errors.sludge?.message}</FormFeedback>
-                                </FormGroup>
+                                <CustomInput
+                                    control={control}
+                                    name="name"
+                                    label="Name"
+                                    required/>
+                                <CustomSelect
+                                    control={control}
+                                    name="expertise"
+                                    label="Mastered field"
+                                    required
+                                    options={expertises.map(item => <option value={item.value}>{item.label}</option>)}/>
                                 {fields.map(
                                     (field, index) => <FormGroup key={field._id}>
-                                        <Row>
+                                        <Row xs={1} lg={5} className="g-1">
                                             <Col>
-                                                <Controller
-                                                    name={`triggers.${index}.thresholdName`}
+                                                <CustomInput
                                                     control={control}
-                                                    render={({field}) => {
-                                                        return (
-                                                            <>
-                                                                <Label className="w-100 text-start">Threshold
-                                                                    name</Label>
-                                                                <Input {...field} />
-                                                                <FormFeedback
-                                                                    valid={!errors.triggers?.[index]?.thresholdName}
-                                                                    className={`${errors.triggers?.[index]?.thresholdName ? "d-block" : "d-none"} w-100 text-start`}>
-                                                                    {errors.triggers?.[index]?.thresholdName?.message}</FormFeedback>
-                                                            </>
-                                                        )
-                                                    }}/>
-                                            </Col>
-                                            {/*<Col md={1}>
-                                                <Controller
-                                                    name={`triggers.${index}.thresholdColor`}
-                                                    control={control}
-                                                    render={({field}) => {
-                                                        return (
-                                                            <>
-                                                                <Input type="color" {...field} />
-                                                            </>
-                                                        )
-                                                    }}/>
-                                            </Col>*/}
-                                            <Col>
-                                                <Controller
-                                                    name={`triggers.${index}.thresholdMinValue`}
-                                                    control={control}
-                                                    render={({field}) => {
-                                                        return (
-                                                            <>
-                                                                <Label className="w-100 text-start">Threshold Min
-                                                                    Value</Label>
-                                                                <Input {...field} />
-                                                                <FormFeedback
-                                                                    valid={!errors.triggers?.[index]?.thresholdMinValue}
-                                                                    className={`${errors.triggers?.[index]?.thresholdMinValue ? "d-block" : "d-none"} w-100 text-start`}>
-                                                                    {errors.triggers?.[index]?.thresholdMinValue?.message}</FormFeedback>
-                                                            </>
-                                                        )
-                                                    }}/>
+                                                    name={`experiences.${index}.title`}
+                                                    label="Job title"
+                                                    required/>
                                             </Col>
                                             <Col>
-                                                <Controller
-                                                    name={`triggers.${index}.thresholdMaxValue`}
+                                                <CustomInput
                                                     control={control}
-                                                    render={({field}) => {
-                                                        return (
-                                                            <>
-                                                                <Label className="w-100 text-start">Threshold Max
-                                                                    Value</Label>
-                                                                <Input {...field} />
-                                                                <FormFeedback
-                                                                    valid={!errors.triggers?.[index]?.thresholdMaxValue}
-                                                                    className={`${errors.triggers?.[index]?.thresholdMaxValue ? "d-block" : "d-none"} w-100 text-start`}>
-                                                                    {errors.triggers?.[index]?.thresholdMaxValue?.message}</FormFeedback>
-                                                            </>
-                                                        )
-                                                    }}/>
+                                                    name={`experiences.${index}.company`}
+                                                    label="Company (optional)"/>
                                             </Col>
-                                            {/*<Col lg={2}>
-                                                <Controller
-                                                    name={`triggers.${index}.thresholdDays`}
+                                            <Col>
+                                                <CustomInput
                                                     control={control}
-                                                    render={({field}) => {
-                                                        return (
-                                                            <>
-                                                                <Label className="w-100 text-start">Days</Label>
-                                                                <Input {...field} />
-                                                                <FormFeedback
-                                                                    valid={!errors.triggers?.[index]?.thresholdDays}
-                                                                    className={`${errors.triggers?.[index]?.thresholdDays ? "d-block" : "d-none"} w-100 text-start`}>
-                                                                    {errors.triggers?.[index]?.thresholdDays?.message}</FormFeedback>
-                                                            </>
-                                                        )
+                                                    name={`experiences.${index}.from`}
+                                                    label="Start date"
+                                                    required/>
+                                            </Col>
+                                            <Col>
+                                                <CustomInput
+                                                    control={control}
+                                                    name={`experiences.${index}.to`}
+                                                    label="End date"/>
+                                            </Col>
+                                            <Col lg={1} className="d-flex flex-column justify-content-center">
+                                                <Button
+                                                    close
+                                                    color="white"
+                                                    title="Remove this experience"
+                                                    onClick={() => {
+                                                        remove(index)
                                                     }}/>
-                                            </Col>*/}
-                                            <Col md={1}>
-                                                <i className="bi bi-trash text-danger" title="Remove this row"
-                                                   onClick={() => {
-                                                       remove(index)
-                                                   }} style={{cursor: "pointer"}}/>
                                             </Col>
                                         </Row>
                                     </FormGroup>
                                 )}
                                 <FormGroup className="d-flex justify-content-start" onClick={() => {
                                     append({
-                                        thresholdName: "",
-                                        thresholdColor: "black",
-                                        thresholdMinValue: undefined,
-                                        thresholdMaxValue: undefined,
-                                        thresholdDays: undefined
+                                        title: "",
+                                        company: "-",
+                                        from: new Date().toLocaleDateString(),
+                                        to: new Date().toLocaleDateString()
                                     })
-                                    trigger("triggers").finally()
+                                    trigger("experiences").finally()
                                 }}>
-                                    <Button color="secondary" outline disabled={fields.length >= 5}>Add threshold <i
-                                        className="bi bi-plus ms-2"/></Button>
+                                    <Button color="white" disabled={fields.length >= 5} size="sm">
+                                        <i className="bi bi-plus-circle-fill me-2"/>Add experience
+                                    </Button>
                                 </FormGroup>
                                 <FormGroup className="d-flex justify-content-end">
-                                    <Button color="light"><i className="bi bi-x"/>Cancel</Button>
-                                    <Button color="primary" type="submit" className="ms-2"><i
-                                        className="bi bi-check me-2"/>Save</Button>
+                                    <Button color="white" size="sm" onClick={() => reset()}><i
+                                        className="bi bi-x-circle-fill me-2"/>Clear
+                                    </Button>
+                                    <Button color="white" type="submit" className="ms-2" size="sm" disabled={!isValid}>
+                                        <i className="bi bi-check-circle-fill me-2"/>Show data
+                                    </Button>
                                 </FormGroup>
                             </Form>
                         </Card>
                         {payload &&
-                        <Card body className="border-success text-start">
-                            <p>Object type: {payload?.objectType}</p>
-                            <p>Sludge: {payload?.sludge}</p>
-                            {payload?.triggers.map((item, index) => <div key={index}>
-                                <p>Threshold name: {item.thresholdName} | Threshold min value: {item.thresholdMinValue} | Threshold max value: {item.thresholdMaxValue}</p>
-                            </div>)}
-                        </Card>}
+                            <Card body className="border-success text-start my-4 shadow">
+                                <p>Name: {payload?.name}</p>
+                                <p>Expertise: {payload?.expertise}</p>
+                                {payload?.experiences.map((item, index) => <div key={index}>
+                                    <p>Job title: {item.title} | Company: {item.company} | Started
+                                        at: {new Date(item.from).toLocaleDateString()} |
+                                        Ended at: {new Date(item.to).toLocaleDateString()}</p>
+                                </div>)}
+                            </Card>}
                     </Col>
                 </Row>
             </Container>
